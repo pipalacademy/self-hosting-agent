@@ -84,3 +84,25 @@ func handleVerifyFile(r *fastglue.Request) error {
 	}
 	return r.SendEnvelope(nil)
 }
+
+func handleUsers(r *fastglue.Request) error {
+	var (
+		app = r.Context.(*App)
+	)
+	users, err := getUsers()
+	if err != nil {
+		app.log.WithError(err).Error("error fetching public IP")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching public IP", nil, "HostError")
+	}
+
+	pubKeys, err := parseSSHKeys()
+	if err != nil {
+		app.log.WithError(err).Error("error fetching public IP")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching public IP", nil, "HostError")
+	}
+
+	return r.SendEnvelope(struct {
+		Users   []string `json:"users"`
+		PubKeys []string `json:"pub_keys"`
+	}{users, pubKeys})
+}

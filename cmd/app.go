@@ -41,6 +41,7 @@ func (app *App) Start(ctx context.Context) {
 	g.GET("/", handleIndex)
 	g.GET("/ping", handlePing)
 	g.GET("/host", handleInfo)
+	g.GET("/users", handleUsers)
 
 	g.GET("/verify/file", handleVerifyFile)
 

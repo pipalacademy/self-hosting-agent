@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -56,4 +58,40 @@ func isFileExists(fPath string) error {
 
 	}
 	return nil
+}
+
+func getUsers() ([]string, error) {
+	users := make([]string, 0)
+	info, err := host.Users()
+	if err != nil {
+		return nil, err
+	}
+	for _, u := range info {
+		users = append(users, u.User)
+	}
+	return users, nil
+}
+
+func parseSSHKeys() ([]string, error) {
+	keys := make([]string, 0)
+
+	authKeyFile := os.Getenv("HOME") + "/.ssh/authorized_keys"
+	file, err := os.Open(authKeyFile)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return keys, nil
+		}
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		keys = append(keys, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return keys, nil
 }
