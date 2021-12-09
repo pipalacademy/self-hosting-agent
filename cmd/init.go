@@ -86,5 +86,6 @@ func initHTTPServer(ko *koanf.Koanf) *fasthttp.Server {
 func initOpts(ko *koanf.Koanf) Opts {
 	return Opts{
 		ServerAddr: ko.String("server.address"),
+		PublicFile: ko.String("app.public_file"),
 	}
 }

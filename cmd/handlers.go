@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -37,25 +39,25 @@ func handleInfo(r *fastglue.Request) error {
 	hostname, err := os.Hostname()
 	if err != nil {
 		app.log.WithError(err).Error("error fetching hostname")
-		return r.SendErrorEnvelope(http.StatusBadRequest, "error fetching hostname", nil, "HostError")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching hostname", nil, "HostError")
 	}
 
 	hostUptime, err := calcHostUptime()
 	if err != nil {
 		app.log.WithError(err).Error("error fetching host uptime")
-		return r.SendErrorEnvelope(http.StatusBadRequest, "error fetching host uptime", nil, "HostError")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching host uptime", nil, "HostError")
 	}
 
 	privateIP, err := getPrivateIP()
 	if err != nil {
 		app.log.WithError(err).Error("error fetching private IP")
-		return r.SendErrorEnvelope(http.StatusBadRequest, "error fetching private IP", nil, "HostError")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching private IP", nil, "HostError")
 	}
 
 	publicIP, err := getPublicIP()
 	if err != nil {
 		app.log.WithError(err).Error("error fetching public IP")
-		return r.SendErrorEnvelope(http.StatusBadRequest, "error fetching public IP", nil, "HostError")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching public IP", nil, "HostError")
 	}
 
 	return r.SendEnvelope(&Health{
@@ -66,4 +68,19 @@ func handleInfo(r *fastglue.Request) error {
 		PrivateIP:   privateIP,
 		PublicIP:    publicIP,
 	})
+}
+
+func handleVerifyFile(r *fastglue.Request) error {
+	var (
+		app = r.Context.(*App)
+	)
+	err := isFileExists(app.opts.PublicFile)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return r.SendErrorEnvelope(http.StatusBadRequest, fmt.Sprintf("%s does not exists", app.opts.PublicFile), nil, "InputError")
+		}
+		app.log.WithError(err).Error("error fetching file path")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching file path", nil, "HostError")
+	}
+	return r.SendEnvelope(nil)
 }

@@ -1,5 +1,6 @@
 [app]
 log_level = "debug" # Level can be debug|info.
+public_file = "/public/hello.txt"
 
 [server]
 address = ":8080" # Interface/Port to bind.

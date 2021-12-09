@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/shirou/gopsutil/v3/host"
 )
@@ -47,4 +48,12 @@ func getPublicIP() (string, error) {
 	}
 
 	return string(body), nil
+}
+
+func isFileExists(fPath string) error {
+	if _, err := os.Stat(fPath); err != nil {
+		return err
+
+	}
+	return nil
 }
