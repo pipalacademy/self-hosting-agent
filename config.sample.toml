@@ -1,6 +1,7 @@
 [app]
 log_level = "debug" # Level can be debug|info.
 public_file = "/public/hello.txt"
+required_packages = ["nginx", "curl", "supervisorctl"]
 
 [server]
 address = ":8080" # Interface/Port to bind.

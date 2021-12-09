@@ -8,6 +8,8 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/shirou/gopsutil/v3/host"
 )
@@ -94,4 +96,15 @@ func parseSSHKeys() ([]string, error) {
 	}
 
 	return keys, nil
+}
+
+// TODO: Verify on .deb system.
+func isPkgInstalled(pkg string) (bool, error) {
+	cmd := exec.Command(fmt.Sprintf("apt -qq list %s", pkg))
+	stdout, err := cmd.Output()
+	if err != nil {
+		return false, err
+	}
+
+	return strings.Contains((string(stdout)), "installed"), nil
 }

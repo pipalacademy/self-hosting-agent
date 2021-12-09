@@ -10,8 +10,9 @@ import (
 )
 
 type Opts struct {
-	ServerAddr string
-	PublicFile string
+	ServerAddr       string
+	PublicFile       string
+	RequiredPackages []string
 }
 
 // App is the global container that holds
@@ -44,6 +45,7 @@ func (app *App) Start(ctx context.Context) {
 	g.GET("/users", handleUsers)
 
 	g.GET("/verify/file", handleVerifyFile)
+	g.GET("/verify/packages", handleVerifyPackages)
 
 	// Start HTTP server.
 	app.log.WithField("address", app.opts.ServerAddr).Info("starting server")

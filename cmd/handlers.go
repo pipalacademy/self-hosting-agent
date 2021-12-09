@@ -106,3 +106,21 @@ func handleUsers(r *fastglue.Request) error {
 		PubKeys []string `json:"pub_keys"`
 	}{users, pubKeys})
 }
+
+func handleVerifyPackages(r *fastglue.Request) error {
+	var (
+		app      = r.Context.(*App)
+		result   = map[string]bool{}
+		packages = app.opts.RequiredPackages
+	)
+	for _, p := range packages {
+		ok, err := isPkgInstalled(p)
+		if err != nil {
+			app.log.WithError(err).Error("error fetching package status")
+			return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching package status", nil, "HostError")
+		}
+		result[p] = ok
+	}
+
+	return r.SendEnvelope(result)
+}
