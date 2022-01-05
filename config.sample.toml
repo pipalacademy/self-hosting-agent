@@ -1,7 +1,7 @@
 [app]
 log_level = "debug" # Level can be debug|info.
-public_file = "/public/hello.txt"
-required_packages = ["nginx", "curl", "supervisorctl"]
+whitelisted_dirs = ["/etc/nginx", "/var/log", "/home/"]
+whitelisted_pkgs = ["nginx", "curl", "supervisorctl"]
 
 [server]
 address = ":8080" # Interface/Port to bind.

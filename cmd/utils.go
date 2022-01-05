@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -23,20 +22,6 @@ func calcHostUptime() (string, error) {
 	hours := (uptime - (days * 60 * 60 * 24)) / (60 * 60)
 	minutes := ((uptime - (days * 60 * 60 * 24)) - (hours * 60 * 60)) / 60
 	return fmt.Sprintf("%d days, %d hours, %d minutes", days, hours, minutes), nil
-}
-
-// Get preferred outbound ip of this machine.
-// https://stackoverflow.com/a/37382208
-func getPrivateIP() (string, error) {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return "", err
-	}
-	defer conn.Close()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP.String(), nil
 }
 
 func getPublicIP() (string, error) {
@@ -60,6 +45,21 @@ func isFileExists(fPath string) error {
 
 	}
 	return nil
+}
+
+// getFileNames lists all filenames present inside
+// the directory.
+func getFileNames(dir string) ([]string, error) {
+	files := make([]string, 0)
+	collection, err := os.ReadDir(dir)
+	if err != nil {
+		return files, err
+	}
+
+	for _, f := range collection {
+		files = append(files, f.Name())
+	}
+	return files, nil
 }
 
 func getUsers() ([]string, error) {
@@ -98,7 +98,6 @@ func parseSSHKeys() ([]string, error) {
 	return keys, nil
 }
 
-// TODO: Verify on .deb system.
 func isPkgInstalled(pkg string) (bool, error) {
 	cmd := exec.Command(fmt.Sprintf("apt -qq list %s", pkg))
 	stdout, err := cmd.Output()
@@ -107,4 +106,13 @@ func isPkgInstalled(pkg string) (bool, error) {
 	}
 
 	return strings.Contains((string(stdout)), "installed"), nil
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

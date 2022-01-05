@@ -85,8 +85,8 @@ func initHTTPServer(ko *koanf.Koanf) *fasthttp.Server {
 
 func initOpts(ko *koanf.Koanf) Opts {
 	return Opts{
-		ServerAddr:       ko.String("server.address"),
-		PublicFile:       ko.String("app.public_file"),
-		RequiredPackages: ko.Strings("app.required_packages"),
+		ServerAddr:      ko.String("server.address"),
+		WhitelistedDirs: ko.Strings("app.whitelisted_dirs"),
+		WhitelistedPkgs: ko.Strings("app.whitelisted_pkgs"),
 	}
 }

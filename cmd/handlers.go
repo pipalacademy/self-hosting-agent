@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -15,7 +14,6 @@ type Health struct {
 	AgentUptime string `json:"agent_uptime"`
 	HostUptime  string `json:"host_uptime"`
 	Hostname    string `json:"hostname"`
-	PrivateIP   string `json:"private_ip"`
 	PublicIP    string `json:"public_ip"`
 }
 
@@ -48,12 +46,6 @@ func handleInfo(r *fastglue.Request) error {
 		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching host uptime", nil, "HostError")
 	}
 
-	privateIP, err := getPrivateIP()
-	if err != nil {
-		app.log.WithError(err).Error("error fetching private IP")
-		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching private IP", nil, "HostError")
-	}
-
 	publicIP, err := getPublicIP()
 	if err != nil {
 		app.log.WithError(err).Error("error fetching public IP")
@@ -65,24 +57,50 @@ func handleInfo(r *fastglue.Request) error {
 		AgentUptime: agentUptime.String(),
 		Hostname:    hostname,
 		HostUptime:  hostUptime,
-		PrivateIP:   privateIP,
 		PublicIP:    publicIP,
 	})
 }
 
-func handleVerifyFile(r *fastglue.Request) error {
+func handleFileListing(r *fastglue.Request) error {
 	var (
-		app = r.Context.(*App)
+		app    = r.Context.(*App)
+		result = map[string][]string{}
+		dirs   = app.opts.WhitelistedDirs
 	)
-	err := isFileExists(app.opts.PublicFile)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return r.SendErrorEnvelope(http.StatusBadRequest, fmt.Sprintf("%s does not exists", app.opts.PublicFile), nil, "InputError")
+	for _, path := range dirs {
+		files, err := getFileNames(path)
+		if err != nil {
+			app.log.WithError(err).Errorf("error fetching files for directory", path)
+			return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching files", nil, "HostError")
 		}
-		app.log.WithError(err).Error("error fetching file path")
-		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching file path", nil, "HostError")
+		result[path] = files
 	}
-	return r.SendEnvelope(nil)
+
+	return r.SendEnvelope(result)
+}
+
+func handleFileListingByPath(r *fastglue.Request) error {
+	var (
+		app    = r.Context.(*App)
+		result = map[string][]string{}
+		path   = r.RequestCtx.UserValue("path").(string)
+		dirs   = app.opts.WhitelistedDirs
+	)
+
+	// Check if path is whitelisted.
+	if !stringInSlice(path, dirs) {
+		return r.SendErrorEnvelope(http.StatusBadRequest, "path is not whitelisted", nil, "InputError")
+	}
+
+	// List all files under that path.
+	files, err := getFileNames(path)
+	if err != nil {
+		app.log.WithError(err).Errorf("error fetching files for directory", path)
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching files", nil, "HostError")
+	}
+	result[path] = files
+
+	return r.SendEnvelope(result)
 }
 
 func handleUsers(r *fastglue.Request) error {
@@ -111,8 +129,9 @@ func handleVerifyPackages(r *fastglue.Request) error {
 	var (
 		app      = r.Context.(*App)
 		result   = map[string]bool{}
-		packages = app.opts.RequiredPackages
+		packages = app.opts.WhitelistedPkgs
 	)
+
 	for _, p := range packages {
 		ok, err := isPkgInstalled(p)
 		if err != nil {
@@ -122,5 +141,30 @@ func handleVerifyPackages(r *fastglue.Request) error {
 		result[p] = ok
 	}
 
+	return r.SendEnvelope(result)
+}
+
+func handleVerifyPackageByName(r *fastglue.Request) error {
+	var (
+		app      = r.Context.(*App)
+		result   = map[string]bool{}
+		pkg      = r.RequestCtx.UserValue("pkg").(string)
+		packages = app.opts.WhitelistedPkgs
+	)
+
+	// Check if pkg is whitelisted.
+	fmt.Println(packages, pkg)
+	if !stringInSlice(pkg, packages) {
+		return r.SendErrorEnvelope(http.StatusBadRequest, "package is not whitelisted", nil, "InputError")
+	}
+
+	// Check if package is installed.
+	ok, err := isPkgInstalled(pkg)
+	if err != nil {
+		app.log.WithError(err).Error("error fetching package status")
+		return r.SendErrorEnvelope(http.StatusInternalServerError, "error fetching package status", nil, "HostError")
+	}
+
+	result[pkg] = ok
 	return r.SendEnvelope(result)
 }
