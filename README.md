@@ -5,8 +5,8 @@ A deamon program that runs on the user's node for the Self Hosting 101 Course
 
 ### Easy Install
 
-```
-
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/fossunited/monschool-agent/main/install.sh | bash
 ```
 
 ### Manual
