@@ -19,3 +19,4 @@ archives:
       - README.md
       - LICENSE
       - config.sample.toml
+      - deployment/monschool-agent.service

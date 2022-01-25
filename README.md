@@ -3,6 +3,14 @@ A deamon program that runs on the user's node for the Self Hosting 101 Course
 
 ## Install
 
+### Easy Install
+
+```
+
+```
+
+### Manual
+
 ```bash
 $ mkdir ~/monschool-agent ; cd ~/monschool-agent
 $ curl -sL https://github.com/fossunited/monschool-agent/releases/download/v0.1.0/monschool-agent_0.1.0_linux_amd64.tar.gz | tar xz

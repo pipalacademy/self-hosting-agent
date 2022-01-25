@@ -1,0 +1,16 @@
+[Unit]
+Description=Monschool Agent
+Documentation=https://github.com/fossunited/monschool-agent/
+After=network-online.target
+Requires=network-online.target
+
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+ExecStart=/usr/bin/monschool-agent.bin --config /etc/monschool-agent/config.toml
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
