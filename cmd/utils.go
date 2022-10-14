@@ -99,7 +99,7 @@ func parseSSHKeys() ([]string, error) {
 }
 
 func isPkgInstalled(pkg string) (bool, error) {
-	cmd := exec.Command(fmt.Sprintf("apt -qq list %s", pkg))
+	cmd := exec.Command("apt", "-qq", "list", pkg)
 	stdout, err := cmd.Output()
 	if err != nil {
 		return false, err
