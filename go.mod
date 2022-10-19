@@ -1,4 +1,4 @@
-module github.com/fossunited/monschool-agent
+module github.com/pipalacademy/self-hosting-agent
 
 go 1.17
 
