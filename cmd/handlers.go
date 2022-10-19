@@ -19,7 +19,7 @@ type Health struct {
 
 // handleIndex serves the `index` page.
 func handleIndex(r *fastglue.Request) error {
-	return r.SendEnvelope("Welcome to monschool-agent.")
+	return r.SendEnvelope("Welcome to self-hosting-agent.")
 }
 
 // handlePing serves a ping response.

@@ -8,7 +8,7 @@ StartLimitIntervalSec=500
 StartLimitBurst=5
 
 [Service]
-ExecStart=/usr/bin/self-hosting-agent.bin --config /etc/self-hosting-agent/config.toml
+ExecStart=/usr/bin/self-hosting-agent --config /etc/self-hosting-agent/config.toml
 Restart=on-failure
 RestartSec=5s
 

@@ -18,7 +18,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 
 	// Initialise and load the config.
-	ko, err := initConfig("config.sample.toml", "MONSCHOOL_AGENT_")
+	ko, err := initConfig("config.sample.toml", "SELF_HOSTING_AGENT_")
 	if err != nil {
 		fmt.Println("error initialising config", err)
 		os.Exit(1)
@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// Start an instance of app.
-	app.log.WithField("version", buildString).Info("booting monschool agent")
+	app.log.WithField("version", buildString).Info("booting self-hosting-agent")
 	app.Start(ctx)
 	// Listen on the close channel indefinitely until a
 	// `SIGINT` or `SIGTERM` is received.
