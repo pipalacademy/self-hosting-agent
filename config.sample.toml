@@ -5,7 +5,7 @@ whitelisted_pkgs = ["nginx", "curl", "supervisorctl"]
 
 [server]
 address = ":8080" # Interface/Port to bind.
-name = "monschool-agent"
+name = "self-hosting-agent"
 read_timeout="30s"
 write_timeout="30s"
 keepalive_timeout="60s"

@@ -1,10 +1,13 @@
 #!/usr/bin/env sh
 set -eu
 
-VERSION="0.1.1"
+VERSION="0.2.0"
 
-# Monschool Agent easy install script.
-# See https://github.com/fossunited/monschool-agent/ for detailed installation steps.
+REPO_URL="https://github.com/pipalacademy/self-hosting-agent"
+DOWNLOAD_URL="$REPO_URL/releases/download/v${VERSION}/self-hosting-agent-${VERSION}_linux_amd64.tar.gz"
+
+# self-hosting-agent install script.
+# See https://github.com/pipalacademy/self-hosting-agent/ for detailed installation steps.
 
 check_dependencies() {
 	if ! command -v curl > /dev/null; then
@@ -14,29 +17,25 @@ check_dependencies() {
 }
 
 download_binary() {
-    mkdir -p /tmp/monschool-agent
-    cd /tmp/monschool-agent ; curl -sL https://github.com/fossunited/monschool-agent/releases/download/v${VERSION}/monschool-agent_${VERSION}_linux_amd64.tar.gz | tar xz
-}
-
-binary_path() {
-    mv /tmp/monschool-agent/monschool-agent.bin /usr/bin
+    mkdir -p /tmp/self-hosting-agent
+    cd /tmp/self-hosting-agent ; curl -sL $DOWNLOAD_URL | tar xz
+    mv /tmp/self-hosting-agent/self-hosting-agent.bin /usr/bin
 }
 
 setup_config() {
-    mkdir -p /etc/monschool-agent
-    mv /tmp/monschool-agent/config.sample.toml /etc/monschool-agent/config.toml
+    mkdir -p /etc/self-hosting-agent
+    mv /tmp/self-hosting-agent/config.sample.toml /etc/self-hosting-agent/config.toml
 }
 
 setup_systemd() {
-    mv /tmp/monschool-agent/deployment/monschool-agent.service /etc/systemd/system/monschool-agent.service
+    mv /tmp/self-hosting-agent/deployment/self-hosting-agent.service /etc/systemd/system/self-hosting-agent.service
     systemctl daemon-reload
-    systemctl enable --now monschool-agent
-    systemctl status monschool-agent
+    systemctl enable --now self-hosting-agent
+    systemctl status self-hosting-agent
 }
 
 
 check_dependencies
 download_binary
-binary_path
 setup_config
 setup_systemd
